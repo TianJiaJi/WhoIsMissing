@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>谁没签到 (WhoIsMissing) - 智能名单比对工具</title>
+    <title>谁没报名 (WhoIsMissing) - 智能名单比对工具</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -602,7 +602,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 谁没签到</h1>
+            <h1>📋 谁没报名</h1>
             <div class="subtitle">🔒 纯前端 · 零依赖 · 隐私安全 · 开箱即用</div>
             <div class="features">
                 <span class="feature-tag">自动定位表头行</span>
@@ -626,7 +626,7 @@
                 <div class="upload-box" id="actualBox" onclick="document.getElementById('actualFile').click()">
                     <div class="icon">✅</div>
                     <div class="label">实际名单</div>
-                    <div class="sublabel">已到名单 · 拖拽或点击上传</div>
+                    <div class="sublabel">报名/签到名单 · 拖拽或点击上传</div>
                     <div class="filename" id="actualFilename"></div>
                     <div class="file-stats" id="actualStats"></div>
                     <div class="detection-info hidden" id="actualDetection"></div>
@@ -652,7 +652,7 @@
                 </div>
                 <div class="stat-card success">
                     <div class="number" id="presentCount">0</div>
-                    <div class="label">已到人数</div>
+                    <div class="label">实际人数</div>
                 </div>
                 <div class="stat-card warning">
                     <div class="number" id="missingCount">0</div>
@@ -690,7 +690,7 @@
                 <div class="legend">
                     <div class="legend-item">
                         <div class="legend-dot present"></div>
-                        <span>已到</span>
+                        <span>已报名/已到</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-dot missing"></div>
@@ -1173,7 +1173,7 @@
                         <td class="id-cell">${entry.id || '-'}</td>
                         <td>
                             <span class="status-badge ${entry.present ? 'present' : 'missing'}">
-                                ${entry.present ? '✓ 已到' : '✗ 未到'}
+                                ${entry.present ? '✓ 已报名/已到' : '✗ 未报名/未到'}
                             </span>
                         </td>
                     `;
