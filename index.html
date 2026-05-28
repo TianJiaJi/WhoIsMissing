@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Is Missing - 名单比对工具</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header .hint {
+            font-size: 0.95rem;
+            opacity: 0.95;
+            background: rgba(255,255,255,0.15);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .upload-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-box {
+            border: 3px dashed #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+
+        .upload-box:hover {
+            border-color: #667eea;
+            background: #f1f5f9;
+        }
+
+        .upload-box.has-file {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        .upload-box .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .upload-box .label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .upload-box .sublabel {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .upload-box .filename {
+            font-size: 0.85rem;
+            color: #10b981;
+            margin-top: 8px;
+            word-break: break-all;
+        }
+
+        .compare-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .compare-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .compare-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-color: #3b82f6;
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #10b981;
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #f59e0b;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .result-section {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result-section.all-present {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .result-header {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-header .icon {
+            font-size: 1.3rem;
+        }
+
+        .missing-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .missing-person {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .all-present-message {
+            text-align: center;
+            color: #10b981;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 30px;
+        }
+
+        .error-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #fef2f2;
+            border: 2px solid #dc2626;
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .error-toast.show {
+            display: block;
+        }
+
+        .error-toast .message {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* 自定义滚动条 */
+        .result-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .result-section::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .result-section::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .result-section::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Who Is Missing</h1>
+            <div class="hint">🔒 本地比对，数据安全 | 请上传两个Excel，确保第一列为姓名，比对结果仅在本机显示</div>
+        </div>
+
+        <div class="card">
+            <div class="upload-section">
+                <div class="upload-box" id="referenceBox" onclick="document.getElementById('referenceFile').click()">
+                    <div class="icon">📖</div>
+                    <div class="label">参考名单</div>
+                    <div class="sublabel">（完整名单）</div>
+                    <div class="filename" id="referenceFilename"></div>
+                    <input type="file" id="referenceFile" accept=".xlsx,.xls" onchange="handleFileSelect('reference')">
+                </div>
+
+                <div class="upload-box" id="actualBox" onclick="document.getElementById('actualFile').click()">
+                    <div class="icon">✅</div>
+                    <div class="label">实际名单</div>
+                    <div class="sublabel">（已到名单）</div>
+                    <div class="filename" id="actualFilename"></div>
+                    <input type="file" id="actualFile" accept=".xlsx,.xls" onchange="handleFileSelect('actual')">
+                </div>
+            </div>
+
+            <button class="compare-btn" id="compareBtn" onclick="compareLists()" disabled>
+                🔍 开始比对
+            </button>
+        </div>
+
+        <div class="card hidden" id="resultCard">
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="number" id="totalCount">0</div>
+                    <div class="label">总人数（参考名单）</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="number" id="presentCount">0</div>
+                    <div class="label">已到人数</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="number" id="missingCount">0</div>
+                    <div class="label">未到人数</div>
+                </div>
+            </div>
+
+            <div class="result-section" id="resultSection">
+                <div class="result-header">
+                    <span class="icon">⚠️</span>
+                    <span>未到人员名单</span>
+                </div>
+                <div class="missing-list" id="missingList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="error-toast" id="errorToast">
+        <div class="message" id="errorMessage"></div>
+    </div>
+
+    <script>
+        // 存储文件数据
+        let referenceData = null;
+        let actualData = null;
+
+        /**
+         * 处理文件选择
+         * @param {string} type - 'reference' 或 'actual'
+         */
+        function handleFileSelect(type) {
+            const fileInput = document.getElementById(type + 'File');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const filename = file.name.toLowerCase();
+            if (!filename.endsWith('.xlsx') && !filename.endsWith('.xls')) {
+                showError('请上传 Excel 文件（.xlsx 或 .xls 格式）');
+                fileInput.value = '';
+                return;
+            }
+
+            // 显示文件名
+            document.getElementById(type + 'Filename').textContent = file.name;
+            document.getElementById(type + 'Box').classList.add('has-file');
+
+            // 读取文件
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+
+                    // 获取第一个工作表
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+
+                    // 转换为JSON，按行读取
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+                    // 自动识别"姓名"列的位置
+                    let nameColumnIndex = 0;
+                    if (jsonData.length > 0) {
+                        const headerRow = jsonData[0];
+                        for (let i = 0; i < headerRow.length; i++) {
+                            const cellValue = String(headerRow[i] || '').trim();
+                            // 匹配"姓名"、"Name"、"名字"等常见表头
+                            if (cellValue === '姓名' || cellValue === 'Name' || cellValue === '名字') {
+                                nameColumnIndex = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 常见的非姓名关键词列表（过滤掉这些内容）
+                    const excludeKeywords = [
+                        '姓名', '活动', '时间', '地点', '主办方', '负责人', '联系电话',
+                        '班级', '学号', '备注', '签到', '签退', '报名', '录取', '状态',
+                        '院系', '专业', '年级', '备注', '附件', '留言', '方式', '取消',
+                        '应到', '实到', '请假', '缺席', '迟到', '早退', '违纪', '违规',
+                        '注：', '请签', '允许', '不允许', '代签', '打', '√'
+                    ];
+
+                    // 提取姓名列（从第二行开始，跳过表头）
+                    const names = [];
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (row && row.length > nameColumnIndex && row[nameColumnIndex]) {
+                            // 去除首尾空格
+                            const name = String(row[nameColumnIndex]).trim();
+                            if (name) {
+                                // 检查是否包含排除关键词
+                                let shouldExclude = false;
+                                for (const keyword of excludeKeywords) {
+                                    if (name.includes(keyword)) {
+                                        shouldExclude = true;
+                                        break;
+                                    }
+                                }
+
+                                // 检查是否为有效的中文姓名格式（2-4个字符，主要是汉字）
+                                // 基本格式：至少2个字符，主要包含中文字符
+                                const isValidName = name.length >= 2 && name.length <= 10 &&
+                                                    /^[一-龥·•·]+$/.test(name);
+
+                                if (!shouldExclude && isValidName) {
+                                    names.push(name);
+                                }
+                            }
+                        }
+                    }
+
+                    if (names.length === 0) {
+                        showError('文件中没有找到有效数据，请检查格式');
+                        return;
+                    }
+
+                    // 存储数据
+                    if (type === 'reference') {
+                        referenceData = names;
+                    } else {
+                        actualData = names;
+                    }
+
+                    // 检查是否可以启用比对按钮
+                    checkCanCompare();
+
+                } catch (error) {
+                    showError('文件解析失败：' + error.message);
+                    console.error(error);
+                }
+            };
+
+            reader.onerror = function() {
+                showError('文件读取失败，请重试');
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        /**
+         * 检查是否可以启用比对按钮
+         */
+        function checkCanCompare() {
+            const compareBtn = document.getElementById('compareBtn');
+            if (referenceData && actualData) {
+                compareBtn.disabled = false;
+            } else {
+                compareBtn.disabled = true;
+            }
+        }
+
+        /**
+         * 比对两个名单
+         */
+        function compareLists() {
+            if (!referenceData || !actualData) {
+                showError('请先上传两个文件');
+                return;
+            }
+
+            try {
+                // 使用Set进行高效比对，O(n)时间复杂度
+                const actualSet = new Set(actualData.map(name => name.toLowerCase()));
+                const missing = [];
+
+                // 找出参考名单中存在但实际名单中缺失的人员
+                for (const name of referenceData) {
+                    if (!actualSet.has(name.toLowerCase())) {
+                        missing.push(name);
+                    }
+                }
+
+                // 更新统计信息
+                const total = referenceData.length;
+                const present = total - missing.length;
+                const missingCount = missing.length;
+
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('presentCount').textContent = present;
+                document.getElementById('missingCount').textContent = missingCount;
+
+                // 更新结果区域
+                const resultSection = document.getElementById('resultSection');
+                const missingList = document.getElementById('missingList');
+
+                if (missingCount === 0) {
+                    // 全员到齐
+                    resultSection.classList.add('all-present');
+                    resultSection.innerHTML = `
+                        <div class="all-present-message">
+                            ✅ 全员到齐！
+                        </div>
+                    `;
+                } else {
+                    // 显示未到人员
+                    resultSection.classList.remove('all-present');
+                    resultSection.innerHTML = `
+                        <div class="result-header">
+                            <span class="icon">⚠️</span>
+                            <span>未到人员名单</span>
+                        </div>
+                        <div class="missing-list" id="missingList"></div>
+                    `;
+
+                    const listElement = document.getElementById('missingList');
+                    missing.forEach(name => {
+                        const personDiv = document.createElement('div');
+                        personDiv.className = 'missing-person';
+                        personDiv.textContent = name;
+                        listElement.appendChild(personDiv);
+                    });
+                }
+
+                // 显示结果卡片
+                document.getElementById('resultCard').classList.remove('hidden');
+
+                // 滚动到结果区域
+                document.getElementById('resultCard').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+
+            } catch (error) {
+                showError('比对失败：' + error.message);
+                console.error(error);
+            }
+        }
+
+        /**
+         * 显示错误提示
+         * @param {string} message - 错误消息
+         */
+        function showError(message) {
+            const errorToast = document.getElementById('errorToast');
+            const errorMessage = document.getElementById('errorMessage');
+
+            errorMessage.textContent = message;
+            errorToast.classList.add('show');
+
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                errorToast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
