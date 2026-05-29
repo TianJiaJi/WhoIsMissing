@@ -27,6 +27,7 @@
             
             --amber: #f59e0b;
             --amber-bg: rgba(245, 158, 11, 0.1);
+            --amber-border: rgba(245, 158, 11, 0.25);
             
             --rose: #f43f5e;
             --rose-bg: rgba(244, 63, 94, 0.08);
@@ -43,13 +44,8 @@
             --transition-fluid: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* 环境微光暗色画布 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-canvas);
@@ -68,1160 +64,369 @@
             justify-content: center;
         }
 
-        /* 极简半透明悬浮滚动条 */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 100px;
-            transition: var(--transition-fluid);
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 100px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
-        .container {
-            width: 100%;
-            max-width: 780px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+        .container { width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 24px; }
 
-        /* 顶部标题 */
-        .header {
-            text-align: center;
-            margin-bottom: 8px;
-            animation: fadeIn 0.8s var(--transition-fluid);
-        }
+        .header { text-align: center; margin-bottom: 8px; animation: fadeIn 0.8s var(--transition-fluid); }
+        .header h1 { font-size: 1.8rem; font-weight: 850; letter-spacing: -0.04em; color: var(--text-main); text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); margin-bottom: 8px; }
 
-        .header h1 {
-            font-size: 1.8rem;
-            font-weight: 850;
-            letter-spacing: -0.04em;
-            color: var(--text-main);
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            margin-bottom: 8px;
-        }
-
-        /* 流程进度指示器 */
         .flow-tracker {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--surface-card);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-primary);
-            box-shadow: var(--shadow-subtle);
-            border-radius: var(--radius-lg);
-            padding: 16px 32px;
-            margin-bottom: 8px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-primary); box-shadow: var(--shadow-subtle);
+            border-radius: var(--radius-lg); padding: 16px 32px; margin-bottom: 8px;
             animation: slideUp 0.6s var(--transition-fluid);
         }
+        @media (max-width: 640px) { .flow-tracker { padding: 12px 16px; } }
 
-        @media (max-width: 640px) {
-            .flow-tracker {
-                padding: 12px 16px;
-            }
-        }
+        .flow-step { display: flex; align-items: center; gap: 10px; opacity: 0.3; transition: var(--transition-fluid); }
+        .flow-step.active { opacity: 1; }
+        .flow-step.active .circle { background: var(--brand-gradient); color: white; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); animation: pulse-ring 2s infinite; }
+        .flow-step.completed { opacity: 0.85; }
+        .flow-step.completed .circle { background: var(--success); color: white; box-shadow: none; }
+        .flow-step .circle { width: 28px; height: 28px; border-radius: 50%; background: #1e293b; color: var(--text-secondary); font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: var(--transition-fluid); }
+        .flow-step .step-label { font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+        @media (max-width: 640px) { .flow-step .step-label { display: none; } }
+        .flow-connector { flex: 1; height: 1px; border-top: 2px dashed #1e293b; margin: 0 16px; transition: var(--transition-fluid); }
+        .flow-connector.active { border-color: var(--brand); }
 
-        .flow-step {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0.3;
-            transition: var(--transition-fluid);
-        }
-
-        .flow-step.active {
-            opacity: 1;
-        }
-
-        .flow-step.active .circle {
-            background: var(--brand-gradient);
-            color: white;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
-            animation: pulse-ring 2s infinite;
-        }
-
-        .flow-step.completed {
-            opacity: 0.85;
-        }
-
-        .flow-step.completed .circle {
-            background: var(--success);
-            color: white;
-            box-shadow: none;
-        }
-
-        .flow-step .circle {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #1e293b;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-fluid);
-        }
-
-        .flow-step .step-label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        @media (max-width: 640px) {
-            .flow-step .step-label {
-                display: none;
-            }
-        }
-
-        .flow-connector {
-            flex: 1;
-            height: 1px;
-            border-top: 2px dashed #1e293b;
-            margin: 0 16px;
-            transition: var(--transition-fluid);
-        }
-
-        .flow-connector.active {
-            border-color: var(--brand);
-        }
-
-        /* 步骤卡片容器 */
         .step-card {
-            background: var(--surface-card);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--border-primary);
-            box-shadow: var(--shadow-subtle);
-            padding: 36px;
-            transition: var(--transition-fluid);
-            position: relative;
-            overflow: hidden;
+            background: var(--surface-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl); border: 1px solid var(--border-primary);
+            box-shadow: var(--shadow-subtle); padding: 36px; transition: var(--transition-fluid);
+            position: relative; overflow: hidden;
         }
+        .step-card:hover { box-shadow: var(--shadow-hover); border-color: rgba(255, 255, 255, 0.1); }
+        @media (max-width: 640px) { .step-card { padding: 24px 16px; } }
 
-        .step-card:hover {
-            box-shadow: var(--shadow-hover);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
+        .step-content { display: none; opacity: 0; transform: translateY(16px); transition: opacity 0.4s ease-out, transform 0.4s ease-out; }
+        .step-content.active { display: block; opacity: 1; transform: translateY(0); }
 
-        @media (max-width: 640px) {
-            .step-card {
-                padding: 24px 16px;
-            }
-        }
+        .step-title-group { text-align: center; margin-bottom: 24px; }
+        .step-title-group h2 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-main); margin-bottom: 4px; }
+        .step-title-group p { font-size: 0.78rem; color: var(--text-secondary); }
 
-        /* 统一分步控制块 */
-        .step-content {
-            display: none;
-            opacity: 0;
-            transform: translateY(16px);
-            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-        }
-
-        .step-content.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .step-title-group {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .step-title-group h2 {
-            font-size: 1.2rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
-
-        .step-title-group p {
-            font-size: 0.78rem;
-            color: var(--text-secondary);
-        }
-
-        /* 上传投放框 */
         .upload-box {
-            border: 2px dashed rgba(255, 255, 255, 0.15);
-            border-radius: var(--radius-lg);
-            padding: 40px 24px;
-            text-align: center;
-            cursor: pointer;
-            background: rgba(15, 23, 42, 0.3);
-            transition: var(--transition-bounce);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 220px;
+            border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg);
+            padding: 40px 24px; text-align: center; cursor: pointer;
+            background: rgba(15, 23, 42, 0.3); transition: var(--transition-bounce);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 220px;
         }
+        .upload-box:hover:not(.has-file) { border-color: var(--brand); background: var(--brand-light); transform: translateY(-2px); }
+        .upload-box.has-file { cursor: default; border-color: var(--success-border); border-style: solid; background: var(--success-bg); }
+        .upload-box input[type="file"] { display: none !important; }
+        .upload-box .icon-wrapper { width: 48px; height: 48px; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-subtle); border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 16px; font-size: 1.3rem; transition: var(--transition-bounce); }
+        .upload-box:hover:not(.has-file) .icon-wrapper { transform: scale(1.08) rotate(3deg); border-color: var(--brand); background: #253147; }
+        .upload-box.has-file .icon-wrapper { background: var(--success); color: white; border-color: transparent; }
+        .upload-box .label { font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .upload-box .sublabel { font-size: 0.75rem; color: var(--text-tertiary); }
+        .upload-box .filename { font-size: 0.8rem; color: #57d3ff; margin-top: 12px; padding: 4px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 100px; border: 1px solid var(--success-border); max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 700; box-shadow: var(--shadow-subtle); }
+        .upload-box .filename:empty, .upload-box .file-stats:empty, .upload-box .detection-info:empty { display: none !important; }
+        .upload-box .file-stats { font-size: 0.72rem; color: var(--text-secondary); margin-top: 6px; font-weight: 500; }
 
-        .upload-box:hover:not(.has-file) {
-            border-color: var(--brand);
-            background: var(--brand-light);
-            transform: translateY(-2px);
-        }
+        .file-transition-banner { margin-top: 16px; text-align: center; font-size: 0.8rem; color: var(--brand); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; animation: fadeIn 0.3s ease; }
+        .back-btn-wrapper { margin-top: 18px; display: flex; justify-content: center; }
+        .text-btn { background: transparent; border: none; font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: var(--transition-fluid); }
+        .text-btn:hover { color: var(--brand); background: var(--brand-light); }
 
-        .upload-box.has-file {
-            cursor: default;
-        }
+        .detection-info { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-md); padding: 12px 16px; margin-top: 16px; font-size: 0.75rem; color: var(--text-secondary); width: 100%; max-width: 320px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; gap: 4px; text-align: left; animation: fadeIn 0.3s ease-out; }
+        .detection-info .info-row { display: flex; justify-content: space-between; align-items: center; }
+        .detection-info .info-label { color: var(--text-tertiary); font-weight: 500; }
+        .detection-info .info-val { color: var(--text-main); font-weight: 700; }
 
-        .upload-box input[type="file"] {
-            display: none !important;
-        }
+        .auto-loader { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 48px 0; text-align: center; }
+        .loader-ring { width: 36px; height: 36px; border: 3px solid rgba(255, 255, 255, 0.05); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .loader-text { font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
 
-        .upload-box .icon-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #1e293b;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow-subtle);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            margin-bottom: 16px;
-            font-size: 1.3rem;
-            transition: var(--transition-bounce);
-        }
+        .match-mode { background: var(--brand-light); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 24px; font-size: 0.8rem; color: #a5b4fc; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
 
-        .upload-box:hover:not(.has-file) .icon-wrapper {
-            transform: scale(1.08) rotate(3deg);
-            border-color: var(--brand);
-            background: #253147;
-        }
-
-        .upload-box .label {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 4px;
-        }
-
-        .upload-box .sublabel {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-        }
-
-        /* 成功读取态 */
-        .upload-box.has-file {
-            border-color: var(--success-border);
-            border-style: solid;
-            background: var(--success-bg);
-        }
-
-        .upload-box.has-file .icon-wrapper {
-            background: var(--success);
-            color: white;
-            border-color: transparent;
-        }
-
-        .upload-box .filename {
-            font-size: 0.8rem;
-            color: #57d3ff;
-            margin-top: 12px;
-            padding: 4px 12px;
-            background: rgba(15, 23, 42, 0.6);
-            border-radius: 100px;
-            border: 1px solid var(--success-border);
-            max-width: 90%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-weight: 700;
-            box-shadow: var(--shadow-subtle);
-        }
-
-        /* 防空隐藏样式 */
-        .upload-box .filename:empty,
-        .upload-box .file-stats:empty,
-        .upload-box .detection-info:empty {
-            display: none !important;
-        }
-
-        .upload-box .file-stats {
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            margin-top: 6px;
-            font-weight: 500;
-        }
-
-        /* 上传后过渡提示与控制项 */
-        .file-transition-banner {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: var(--brand);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .back-btn-wrapper {
-            margin-top: 18px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .text-btn {
-            background: transparent;
-            border: none;
-            font-size: 0.78rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 6px;
-            transition: var(--transition-fluid);
-        }
-
-        .text-btn:hover {
-            color: var(--brand);
-            background: var(--brand-light);
-        }
-
-        /* 智能解析展示区 */
-        .detection-info {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: var(--radius-md);
-            padding: 12px 16px;
-            margin-top: 16px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            width: 100%;
-            max-width: 320px;
-            box-shadow: var(--shadow-subtle);
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            text-align: left;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .detection-info .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .detection-info .info-label {
-            color: var(--text-tertiary);
-            font-weight: 500;
-        }
-
-        .detection-info .info-val {
-            color: var(--text-main);
-            font-weight: 700;
-        }
-
-        /* 自动化加载覆盖层 */
-        .auto-loader {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding: 48px 0;
-            text-align: center;
-        }
-
-        .loader-ring {
-            width: 36px;
-            height: 36px;
-            border: 3px solid rgba(255, 255, 255, 0.05);
-            border-top-color: var(--brand);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        .loader-text {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        /* 第三步：统计结果布局 */
-        .match-mode {
-            background: var(--brand-light);
-            border: 1px solid rgba(99, 102, 241, 0.15);
-            border-radius: var(--radius-md);
-            padding: 10px 14px;
-            margin-bottom: 24px;
-            font-size: 0.8rem;
-            color: #a5b4fc;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 700;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        @media (max-width: 640px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-        }
-
-        .stat-card {
-            background: rgba(15, 23, 42, 0.4);
-            padding: 18px;
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: var(--transition-fluid);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        .stat-card:hover {
-            background: rgba(15, 23, 42, 0.6);
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.1);
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .stat-card .number {
-            font-size: 1.85rem;
-            font-weight: 850;
-            color: var(--text-main);
-            margin-bottom: 2px;
-            line-height: 1;
-            letter-spacing: -0.04em;
-        }
-
-        .stat-card .label {
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; gap: 12px; } }
+        .stat-card { background: rgba(15, 23, 42, 0.4); padding: 18px; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.06); transition: var(--transition-fluid); display: flex; flex-direction: column; align-items: center; position: relative; }
+        .stat-card:hover { background: rgba(15, 23, 42, 0.6); transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.1); box-shadow: var(--shadow-subtle); }
+        .stat-card .number { font-size: 1.85rem; font-weight: 850; color: var(--text-main); margin-bottom: 2px; line-height: 1; letter-spacing: -0.04em; }
+        .stat-card .label { font-size: 0.72rem; color: var(--text-secondary); font-weight: 600; }
         .stat-card.primary .number { color: #818cf8; }
         .stat-card.success .number { color: #22d3ee; }
         .stat-card.warning .number { color: #fda4af; }
 
-        /* 缺漏人员框 */
-        .result-section {
-            background: var(--rose-bg);
-            border: 1px solid var(--rose-border);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 24px;
-        }
+        .result-section { background: var(--rose-bg); border: 1px solid var(--rose-border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 24px; }
+        .result-section.all-present { background: var(--success-bg); border-color: var(--success-border); }
+        .result-section.extra-section { background: var(--amber-bg); border-color: var(--amber-border); }
+        .result-header { font-weight: 700; color: var(--text-main); margin-bottom: 14px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+        .result-section.extra-section .result-header { color: var(--amber); }
+        
+        .missing-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+        .missing-person { background: rgba(15, 23, 42, 0.5); padding: 8px 12px; border-radius: var(--radius-md); text-align: center; font-weight: 600; color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.15); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); transition: var(--transition-fluid); font-size: 0.8rem; animation: scaleIn 0.35s var(--transition-fluid) backwards; }
+        .missing-person:hover { transform: scale(1.03) translateY(-1px); box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.15); }
+        
+        .result-section.extra-section .missing-person { color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.05); }
+        .result-section.extra-section .missing-person:hover { box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.15); }
 
-        .result-section.all-present {
-            background: var(--success-bg);
-            border-color: var(--success-border);
-        }
+        .all-present-message { text-align: center; color: #34d399; font-size: 0.95rem; font-weight: 700; padding: 12px; }
 
-        .result-header {
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 14px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .table-scroll { max-height: 400px; overflow-x: auto; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .table-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.2); border-radius: 100px; }
+        .table-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 100px; }
+        .table-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
 
-        .missing-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 8px;
-        }
+        .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.82rem; min-width: 480px; }
+        .comparison-table th { padding: 10px 16px; text-align: left; font-weight: 700; color: var(--text-secondary); background: #111827; border-bottom: 1px solid rgba(255, 255, 255, 0.08); position: sticky; top: 0; z-index: 10; }
+        .comparison-table th:first-child { width: 60px; text-align: center; }
+        .comparison-table td { padding: 10px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); vertical-align: middle; transition: var(--transition-fluid); }
+        .comparison-table tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+        .comparison-table tbody tr.missing td { background: rgba(244, 63, 94, 0.04); }
+        .comparison-table tbody tr.missing:hover td { background: rgba(244, 63, 94, 0.08); }
+        .comparison-table .seq { text-align: center; color: var(--text-tertiary); font-weight: 500; }
+        .comparison-table .name-cell { font-weight: 700; color: var(--text-main); }
+        .comparison-table .id-cell { color: var(--text-secondary); font-family: SFMono-Regular, Consolas, monospace; font-size: 0.72rem; }
 
-        .missing-person {
-            background: rgba(15, 23, 42, 0.5);
-            padding: 8px 12px;
-            border-radius: var(--radius-md);
-            text-align: center;
-            font-weight: 600;
-            color: #fda4af;
-            border: 1px solid rgba(244, 63, 94, 0.15);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            transition: var(--transition-fluid);
-            font-size: 0.8rem;
-            animation: scaleIn 0.35s var(--transition-fluid) backwards;
-        }
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; font-size: 0.7rem; font-weight: 700; }
+        .status-badge.present { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .status-badge.missing { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
 
-        .missing-person:hover {
-            transform: scale(1.03) translateY(-1px);
-            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
-            background: rgba(244, 63, 94, 0.15);
-        }
-
-        .all-present-message {
-            text-align: center;
-            color: #34d399;
-            font-size: 0.95rem;
-            font-weight: 700;
-            padding: 12px;
-        }
-
-        /* 详细对比表滚动条优化 */
-        .table-scroll {
-            max-height: 400px;
-            overflow-x: auto;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        .table-scroll::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .table-scroll::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.2);
-            border-radius: 100px;
-        }
-        .table-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 100px;
-            transition: var(--transition-fluid);
-        }
-        .table-scroll::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            font-size: 0.82rem;
-            min-width: 480px;
-        }
-
-        .comparison-table th {
-            padding: 10px 16px;
-            text-align: left;
-            font-weight: 700;
-            color: var(--text-secondary);
-            background: #111827; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        .comparison-table th:first-child {
-            width: 60px;
-            text-align: center;
-        }
-
-        .comparison-table td {
-            padding: 10px 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            vertical-align: middle;
-            transition: var(--transition-fluid);
-        }
-
-        .comparison-table tbody tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .comparison-table tbody tr.missing td {
-            background: rgba(244, 63, 94, 0.04);
-        }
-
-        .comparison-table tbody tr.missing:hover td {
-            background: rgba(244, 63, 94, 0.08);
-        }
-
-        .comparison-table .seq {
-            text-align: center;
-            color: var(--text-tertiary);
-            font-weight: 500;
-        }
-
-        .comparison-table .name-cell {
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .comparison-table .id-cell {
-            color: var(--text-secondary);
-            font-family: SFMono-Regular, Consolas, monospace;
-            font-size: 0.72rem;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 10px;
-            border-radius: 100px;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-
-        .status-badge.present {
-            background: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-        }
-
-        .status-badge.missing {
-            background: rgba(244, 63, 94, 0.15);
-            color: #fb7185;
-        }
-
-        .legend {
-            display: flex;
-            gap: 16px;
-            padding: 12px 20px;
-            background: rgba(15, 23, 42, 0.4);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .legend-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-
+        .legend { display: flex; gap: 16px; padding: 12px 20px; background: rgba(15, 23, 42, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
         .legend-dot.present { background: #34d399; }
         .legend-dot.missing { background: #fb7185; }
 
-        /* 重塑的 .compare-btn 样式 */
-        .compare-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 12px 24px;
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: white;
-            background: var(--brand-gradient);
-            border: none;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: var(--transition-fluid);
-            box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.4);
-        }
+        .compare-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 24px; font-size: 0.88rem; font-weight: 700; color: white; background: var(--brand-gradient); border: none; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition-fluid); box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.4); }
+        .compare-btn:hover { transform: translateY(-1px); background: var(--brand-hover); box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.6); }
+        .compare-btn:active { transform: translateY(1px); }
 
-        .compare-btn:hover {
-            transform: translateY(-1px);
-            background: var(--brand-hover);
-            box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.6);
-        }
-
-        .compare-btn:active {
-            transform: translateY(1px);
-        }
-
-        /* 全局通用进度条 */
-        .progress-bar {
-            width: 100%;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 100px;
-            overflow: hidden;
-            margin: 16px 0;
-            display: none;
-        }
-
+        .progress-bar { width: 100%; height: 3px; background: rgba(255, 255, 255, 0.05); border-radius: 100px; overflow: hidden; margin: 16px 0; display: none; }
         .progress-bar.active { display: block; }
+        .progress-bar .progress { height: 100%; background: var(--brand-gradient); width: 0%; transition: width 0.35s ease; }
 
-        .progress-bar .progress {
-            height: 100%;
-            background: var(--brand-gradient);
-            width: 0%;
-            transition: width 0.35s ease;
-        }
+        .action-footer { margin-top: 24px; display: flex; justify-content: center; }
 
-        /* 回退复位控制区 */
-        .action-footer {
-            margin-top: 24px;
-            display: flex;
-            justify-content: center;
-        }
+        .error-toast { position: fixed; top: 24px; right: 24px; background: #111827; border: 1px solid var(--rose-border); border-radius: var(--radius-lg); padding: 12px 18px; box-shadow: var(--shadow-hover); z-index: 1000; display: none; max-width: 320px; animation: slideInRight 0.4s var(--transition-fluid); }
+        .error-toast.show { display: block; }
+        @media (max-width: 640px) { .error-toast { top: 12px; right: 12px; left: 12px; max-width: none; } }
 
-        /* 吐司通知提示 */
-        .error-toast {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            background: #111827;
-            border: 1px solid var(--rose-border);
-            border-radius: var(--radius-lg);
-            padding: 12px 18px;
-            box-shadow: var(--shadow-hover);
-            z-index: 1000;
-            display: none;
-            max-width: 320px;
-            animation: slideInRight 0.4s var(--transition-fluid);
-        }
-
-        @media (max-width: 640px) {
-            .error-toast {
-                top: 12px;
-                right: 12px;
-                left: 12px;
-                max-width: none;
-            }
-        }
-
-        /* 隐藏和通用 */
         .hidden { display: none !important; }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); }
-            70% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); } 70% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); } }
+        @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 头部标题 -->
-        <div class="header">
-            <h1>谁没报名</h1>
-        </div>
+        <div class="header"><h1>到底是谁？没报名！</h1></div>
 
-        <!-- 1, 2, 3 步骤流程指示器 -->
         <div class="flow-tracker">
-            <div class="flow-step active" id="stepIndicator1">
-                <div class="circle">1</div>
-                <div class="step-label">上传参考名单</div>
-            </div>
+            <div class="flow-step active" id="stepIndicator1"><div class="circle">1</div><div class="step-label">上传参考名单</div></div>
             <div class="flow-connector" id="flowConnector1"></div>
-            <div class="flow-step" id="stepIndicator2">
-                <div class="circle">2</div>
-                <div class="step-label">上传实际名单</div>
-            </div>
+            <div class="flow-step" id="stepIndicator2"><div class="circle">2</div><div class="step-label">上传实际名单</div></div>
             <div class="flow-connector" id="flowConnector2"></div>
-            <div class="flow-step" id="stepIndicator3">
-                <div class="circle">3</div>
-                <div class="step-label">统计结果</div>
-            </div>
+            <div class="flow-step" id="stepIndicator3"><div class="circle">3</div><div class="step-label">统计结果</div></div>
         </div>
 
         <div class="step-card">
-            <!-- 步骤 1：参考名单上传 -->
             <div class="step-content active" id="stepContent1">
-                <div class="step-title-group">
-                    <h2>上传第一份文件</h2>
-                    <p>导入完整的大名单，用作比对的基准标准</p>
-                </div>
-                
+                <div class="step-title-group"><h2>上传第一份文件</h2><p>导入完整的大名单，用作比对的基准标准</p></div>
                 <div class="upload-box" id="referenceBox" onclick="triggerUpload('reference')">
                     <div class="icon-wrapper">📖</div>
                     <div class="label">参考名单</div>
                     <div class="sublabel">支持导入 .xlsx, .xls, .csv 格式</div>
                     <div class="filename" id="referenceFilename"></div>
                     <div class="file-stats" id="referenceStats"></div>
-                    <center>
-                        <div class="detection-info hidden" id="referenceDetection"></div>
-                    </center>
+                    <center><div class="detection-info hidden" id="referenceDetection"></div></center>
                     <input type="file" id="referenceFile" accept=".xlsx,.xls,.csv" onchange="handleFileSelect('reference')">
                 </div>
-
                 <div class="file-transition-banner hidden" id="referenceTransitionNotice">
                     <span class="loader-ring" style="width:14px; height:14px; border-width:2px;"></span>
                     即将为您切往下一步...
                 </div>
             </div>
 
-            <!-- 步骤 2：实际名单上传 -->
             <div class="step-content" id="stepContent2">
-                <div class="step-title-group">
-                    <h2>上传第二份文件</h2>
-                    <p>导入已完成签到、打卡、录取的最终名单</p>
-                </div>
-
+                <div class="step-title-group"><h2>上传第二份文件</h2><p>导入已完成签到、打卡、录取的最终名单</p></div>
                 <div class="upload-box" id="actualBox" onclick="triggerUpload('actual')">
                     <div class="icon-wrapper">✅</div>
                     <div class="label">实际名单</div>
                     <div class="sublabel">将与参考大名单进行自动交叉校准</div>
                     <div class="filename" id="actualFilename"></div>
                     <div class="file-stats" id="actualStats"></div>
-                    <center>
-                        <div class="detection-info hidden" id="actualDetection"></div>
-                    </center>
+                    <center><div class="detection-info hidden" id="actualDetection"></div></center>
                     <input type="file" id="actualFile" accept=".xlsx,.xls,.csv" onchange="handleFileSelect('actual')">
                 </div>
-
                 <div class="file-transition-banner hidden" id="actualTransitionNotice">
                     <span class="loader-ring" style="width:14px; height:14px; border-width:2px;"></span>
                     比对完毕，正在生成统计分析...
                 </div>
-
-                <div class="back-btn-wrapper">
-                    <button class="text-btn" onclick="goToStep(1)">← 返回重新上传参考名单</button>
-                </div>
+                <div class="back-btn-wrapper"><button class="text-btn" onclick="goToStep(1)">← 返回重新上传参考名单</button></div>
             </div>
 
-            <!-- 自动化分析过渡 -->
             <div class="step-content" id="stepContentLoader">
-                <div class="auto-loader">
-                    <div class="loader-ring"></div>
-                    <div class="loader-text">交叉矩阵运算中，请稍后...</div>
-                </div>
+                <div class="auto-loader"><div class="loader-ring"></div><div class="loader-text">交叉矩阵运算抓鬼中，请稍后...</div></div>
             </div>
 
-            <!-- 步骤 3：统计结果页 -->
             <div class="step-content" id="stepContent3">
                 <div class="match-mode" id="matchMode"></div>
-                
                 <div class="stats-grid">
-                    <div class="stat-card primary">
-                        <div class="number" id="totalCount">0</div>
-                        <div class="label">参考总人数</div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="number" id="presentCount">0</div>
-                        <div class="label">实际签到人数</div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="number" id="missingCount">0</div>
-                        <div class="label">未报名人数</div>
-                    </div>
+                    <div class="stat-card primary"><div class="number" id="totalCount">0</div><div class="label">参考总人数</div></div>
+                    <div class="stat-card success"><div class="number" id="presentCount">0</div><div class="label">实际签到人数</div></div>
+                    <div class="stat-card warning"><div class="number" id="missingCount">0</div><div class="label">未报名人数</div></div>
                 </div>
 
                 <div class="result-section" id="resultSection">
-                    <div class="result-header">
-                        <span class="icon">💡</span>
-                        <span>以下人员缺席报名：</span>
-                    </div>
+                    <div class="result-header"><span class="icon">💡</span><span>以下人员缺席报名：</span></div>
                     <div class="missing-list" id="missingList"></div>
                 </div>
 
-                <!-- 详细比对数据表 -->
+                <div class="result-section extra-section" id="extraSection" style="display:none;">
+                    <div class="result-header"><span class="icon">👤</span><span>非名单内签到人员（多出来的人）</span></div>
+                    <div class="missing-list" id="extraList"></div>
+                </div>
+
                 <div class="comparison-table-container">
-                    <div class="comparison-header">
-                        <h3>🔍 数据对账明细</h3>
-                    </div>
+                    <div class="comparison-header"><h3>🔍 数据对账明细</h3></div>
                     <div class="table-scroll">
                         <table class="comparison-table">
-                            <thead>
-                                <tr>
-                                    <th>序号</th>
-                                    <th>姓名</th>
-                                    <th>学号</th>
-                                    <th>对账状态</th>
-                                </tr>
-                            </thead>
-                            <tbody id="comparisonTableBody">
-                            </tbody>
+                            <thead><tr><th>序号</th><th>姓名</th><th>学号</th><th>对账状态</th></tr></thead>
+                            <tbody id="comparisonTableBody"></tbody>
                         </table>
                     </div>
                     <div class="legend">
-                        <div class="legend-item">
-                            <div class="legend-dot present"></div>
-                            <span>已报名</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-dot missing"></div>
-                            <span>未报名</span>
-                        </div>
+                        <div class="legend-item"><div class="legend-dot present"></div><span>已报名</span></div>
+                        <div class="legend-item"><div class="legend-dot missing"></div><span>未报名</span></div>
                     </div>
                 </div>
 
                 <div class="action-footer">
-                    <button class="compare-btn" style="max-width: 240px;" onclick="resetWorkflow()">
-                        🔄 重新上传并开始比对
-                    </button>
+                    <button class="compare-btn" style="max-width: 240px;" onclick="resetWorkflow()">🔄 重新上传并开始比对</button>
                 </div>
             </div>
 
-            <!-- 通用隐藏的运行按钮 -->
             <button class="hidden" id="compareBtn" onclick="compareLists()"></button>
-            
-            <!-- 全局通用过渡条 -->
-            <div class="progress-bar" id="progressBar">
-                <div class="progress" id="progress"></div>
-            </div>
+            <div class="progress-bar" id="progressBar"><div class="progress" id="progress"></div></div>
         </div>
     </div>
 
-    <!-- 错误吐司 -->
-    <div class="error-toast" id="errorToast">
-        <div class="message" id="errorMessage"></div>
-    </div>
+    <div class="error-toast" id="errorToast"><div class="message" id="errorMessage"></div></div>
 
     <script>
         let referenceData = null;
         let actualData = null;
         let activeStep = 1;
 
-        // 🌟 经典匹配内核：完全恢复为旧版最纯净稳定、被您验证为100%正确的名单读取策略
         class SmartTableAnalyzer {
             constructor() {
-                this.headerKeywords = [
-                    '姓名', '名字', '名称', 'Name', 'name',
-                    '序号', '编号', '学号', '工号', 'ID', 'No',
-                    '班级', '部门', '科室', '学院', '院系', '专业', '年级',
-                    '状态', '报名状态', '录取状态', '签到', '签退',
-                    '时间', '日期', '报名时间', '活动名称',
-                    '备注', '留言', '附件', '性别', '年龄',
-                    '电话', '手机', '联系方式', '邮箱',
-                    '录取方式', '活动ID', '开始', '结束'
-                ];
-
-                this.nameKeywords = [
-                    '姓名', '名字', '名称', '人名', 'Name', 'name', 'NAME',
-                    '参与者', '学员', '学生', '员工', '成员', '人员',
-                    '参会者', '嘉宾', '观众', '选手', '队员'
-                ];
-
-                this.idKeywords = [
-                    '学号', '工号', 'ID', 'id', 'Id', '编号', 'No', 'no',
-                    'StudentID', 'Student ID', 'student_id', 'EmpID',
-                    '用户ID', '会员编号', '考生号', '准考证号'
-                ];
-
-                this.excludeKeywords = [
-                    '活动签到表', '签到表', '报名表', '录取列表',
-                    '活动名称', '活动时间', '活动地点', '主办方',
-                    '活动负责人', '联系电话', '应到人数', '实到人数',
-                    '请假', '缺席', '迟到', '早退', '违纪', '违规',
-                    '注：', '注:', '说明', '附件', '取消',
-                    '允许', '不允许', '代签',
-                    '已报名', '已录取', '未录取', '待审核',
-                    '德克特', '互联网', '产业学院', '大数据技术',
-                    '报名制', '审核制', '暂无附件',
-                    '2024', '2025', '2026', '2023'
-                ];
+                this.headerKeywords = ['姓名', '名字', '名称', 'Name', 'name', '序号', '编号', '学号', '工号', 'ID', 'No', '班级', '部门', '科室', '学院', '院系', '专业', '年级', '状态', '报名状态', '录取状态', '签到', '签退', '时间', '日期', '报名时间', '活动名称', '备注', '留言', '附件', '性别', '年龄', '电话', '手机', '联系方式', '邮箱', '录取方式', '活动ID', '开始', '结束'];
+                this.nameKeywords = ['姓名', '名字', '名称', '人名', 'Name', 'name', 'NAME', '参与者', '学员', '学生', '员工', '成员', '人员', '参会者', '嘉宾', '观众', '选手', '队员'];
+                this.idKeywords = ['学号', '工号', 'ID', 'id', 'Id', '编号', 'No', 'no', 'StudentID', 'Student ID', 'student_id', 'EmpID', '用户ID', '会员编号', '考生号', '准考证号'];
+                this.excludeKeywords = ['活动签到表', '签到表', '报名表', '录取列表', '活动名称', '活动时间', '活动地点', '主办方', '活动负责人', '联系电话', '应到人数', '实到人数', '请假', '缺席', '迟到', '早退', '违纪', '违规', '注：', '注:', '说明', '附件', '取消', '允许', '不允许', '代签', '已报名', '已录取', '未录取', '待审核', '德克特', '互联网', '产业学院', '大数据技术', '报名制', '审核制', '暂无附件', '2024', '2025', '2026', '2023', '二班', '一班', '三班', '四班', '五班', '班级', '校区', '大学'];
             }
 
             findHeaderRow(jsonData) {
-                let bestRow = 0;
-                let bestScore = 0;
+                let bestRow = 0, bestScore = 0;
                 const maxRowsToCheck = Math.min(jsonData.length, 25);
-
                 for (let i = 0; i < maxRowsToCheck; i++) {
                     const row = jsonData[i];
                     if (!row || !Array.isArray(row)) continue;
-
                     let score = 0;
                     for (let j = 0; j < row.length; j++) {
                         const cell = String(row[j] || '').trim();
                         if (cell.length === 0) continue;
-
                         for (const keyword of this.headerKeywords) {
-                            if (cell === keyword) {
-                                score += 15;
-                            } else if (cell.includes(keyword) && cell.length < keyword.length + 10) {
-                                score += 8;
-                            }
+                            if (cell === keyword) score += 15;
+                            else if (cell.includes(keyword) && cell.length < keyword.length + 10) score += 8;
                         }
                     }
-
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestRow = i;
-                    }
+                    if (score > bestScore) { bestScore = score; bestRow = i; }
                 }
-
-                return {
-                    rowIndex: bestRow,
-                    score: bestScore,
-                    isReliable: bestScore >= 15
-                };
+                return { rowIndex: bestRow, score: bestScore, isReliable: bestScore >= 15 };
             }
 
             detectColumns(jsonData, headerRowIndex) {
                 const headerRow = jsonData[headerRowIndex] || [];
-                const result = {
-                    nameColumn: -1,
-                    idColumn: -1,
-                    nameConfidence: 0,
-                    idConfidence: 0,
-                    headerPreview: []
-                };
-
+                const result = { nameColumn: -1, idColumn: -1, nameConfidence: 0, idConfidence: 0, headerPreview: [] };
                 for (let i = 0; i < headerRow.length; i++) {
                     const cell = String(headerRow[i] || '').trim();
                     if (cell.length === 0) continue;
-
                     result.headerPreview.push({ index: i, value: cell });
-
                     for (const keyword of this.nameKeywords) {
-                        if (cell === keyword || cell.toLowerCase() === keyword.toLowerCase()) {
-                            result.nameColumn = i;
-                            result.nameConfidence = 100;
-                            break;
-                        }
-                        if (cell.includes(keyword) && result.nameColumn === -1) {
-                            result.nameColumn = i;
-                            result.nameConfidence = 70;
-                        }
+                        if (cell === keyword || cell.toLowerCase() === keyword.toLowerCase()) { result.nameColumn = i; result.nameConfidence = 100; break; }
+                        if (cell.includes(keyword) && result.nameColumn === -1) { result.nameColumn = i; result.nameConfidence = 70; }
                     }
-
                     for (const keyword of this.idKeywords) {
-                        if (cell === keyword || cell.toLowerCase() === keyword.toLowerCase()) {
-                            result.idColumn = i;
-                            result.idConfidence = 100;
-                            break;
-                        }
-                        if (cell.includes(keyword) && result.idColumn === -1) {
-                            result.idColumn = i;
-                            result.idConfidence = 70;
-                        }
+                        if (cell === keyword || cell.toLowerCase() === keyword.toLowerCase()) { result.idColumn = i; result.idConfidence = 100; break; }
+                        if (cell.includes(keyword) && result.idColumn === -1) { result.idColumn = i; result.idConfidence = 70; }
                     }
                 }
-
-                if (result.nameColumn === -1) {
-                    result.nameColumn = this.inferNameColumnByContent(jsonData, headerRowIndex);
-                    result.nameConfidence = 50;
-                }
-
+                if (result.nameColumn === -1) { result.nameColumn = this.inferNameColumnByContent(jsonData, headerRowIndex); result.nameConfidence = 50; }
                 return result;
             }
 
             inferNameColumnByContent(jsonData, headerRowIndex) {
                 const maxCols = Math.min(jsonData[0]?.length || 0, 10);
-                let bestCol = 0;
-                let bestScore = -1;
-
+                let bestCol = 0, bestScore = -1;
                 for (let col = 0; col < maxCols; col++) {
                     let score = 0;
-                    let validCount = 0;
-
                     for (let row = headerRowIndex + 1; row < Math.min(jsonData.length, headerRowIndex + 20); row++) {
                         const cell = String(jsonData[row]?.[col] || '').trim();
                         if (cell.length === 0) continue;
-
-                        validCount++;
-                        const nameScore = this.getNameScore(cell);
-                        if (nameScore > 20) score += 10;
+                        if (this.getNameScore(cell) > 20) score += 10;
                     }
-
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestCol = col;
-                    }
+                    if (score > bestScore) { bestScore = score; bestCol = col; }
                 }
-
                 return bestCol;
             }
 
             getNameScore(name) {
                 if (!name || typeof name !== 'string') return -100;
-                
                 const trimmed = name.trim();
                 if (trimmed.length === 0) return -100;
                 if (trimmed.length > 20) return -50;
-
                 let score = 0;
-
-                for (const keyword of this.excludeKeywords) {
-                    if (trimmed.includes(keyword)) {
-                        score -= 80;
-                    }
-                }
-
+                for (const keyword of this.excludeKeywords) { if (trimmed.includes(keyword)) score -= 80; }
                 if (/^\d+$/.test(trimmed)) return -100;
                 if (/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}/.test(trimmed)) return -100;
                 if (/^\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}/.test(trimmed)) return -100;
-
                 const chineseChars = (trimmed.match(/[\u4e00-\u9fff]/g) || []).length;
                 const totalChars = trimmed.length;
-
                 if (chineseChars > 0) {
                     if (chineseChars >= 2 && chineseChars <= 4) score += 70;
                     else if (chineseChars >= 2 && chineseChars <= 6) score += 40;
                     else if (chineseChars === 1) score += 10;
-
                     if (chineseChars / totalChars > 0.8) score += 20;
                     if (trimmed.includes('·') || trimmed.includes('•')) score += 10;
                 } else {
                     if (/^[A-Z][a-z]+/.test(trimmed)) score += 30;
                     if (trimmed.includes(' ')) score += 15;
                 }
-
-                for (const keyword of this.headerKeywords) {
-                    if (trimmed === keyword) score -= 100;
-                }
-
+                for (const keyword of this.headerKeywords) { if (trimmed === keyword) score -= 100; }
                 return score;
             }
 
             extractData(jsonData, headerRowIndex, columns) {
                 const entries = [];
-                const seen = new Set();
-
+                const seenIds = new Set();
                 for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
                     const row = jsonData[i];
                     if (!row || !Array.isArray(row)) continue;
-
-                    const name = columns.nameColumn >= 0 && columns.nameColumn < row.length
-                        ? String(row[columns.nameColumn] || '').trim()
-                        : '';
-
-                    const id = columns.idColumn >= 0 && columns.idColumn < row.length
-                        ? String(row[columns.idColumn] || '').trim()
-                        : '';
-
+                    const name = columns.nameColumn >= 0 && columns.nameColumn < row.length ? String(row[columns.nameColumn] || '').trim() : '';
+                    const id = columns.idColumn >= 0 && columns.idColumn < row.length ? String(row[columns.idColumn] || '').trim() : '';
                     if (!name || name.length === 0) continue;
                     if (this.getNameScore(name) < 0) continue;
-
-                    const key = id || name;
-                    if (seen.has(key.toLowerCase())) continue;
-                    seen.add(key.toLowerCase());
-
+                    if (id && id.length > 0) {
+                        const lowerId = id.toLowerCase();
+                        if (seenIds.has(lowerId)) continue;
+                        seenIds.add(lowerId);
+                    }
                     entries.push({ name, id });
                 }
-
                 return entries;
             }
 
@@ -1229,16 +434,11 @@
                 const header = this.findHeaderRow(jsonData);
                 const columns = this.detectColumns(jsonData, header.rowIndex);
                 const data = this.extractData(jsonData, header.rowIndex, columns);
-
                 return {
-                    headerRow: header.rowIndex,
-                    headerReliable: header.isReliable,
-                    nameColumn: columns.nameColumn,
-                    idColumn: columns.idColumn,
-                    nameConfidence: columns.nameConfidence,
-                    idConfidence: columns.idConfidence,
-                    data: data,
-                    hasId: columns.idColumn >= 0 && data.some(d => d.id && d.id.length > 0),
+                    headerRow: header.rowIndex, headerReliable: header.isReliable,
+                    nameColumn: columns.nameColumn, idColumn: columns.idColumn,
+                    nameConfidence: columns.nameConfidence, idConfidence: columns.idConfidence,
+                    data: data, hasId: columns.idColumn >= 0 && data.some(d => d.id && d.id.length > 0),
                     headerPreview: columns.headerPreview
                 };
             }
@@ -1247,31 +447,16 @@
         const analyzer = new SmartTableAnalyzer();
 
         function setupDragAndDrop() {
-            const boxes = document.querySelectorAll('.upload-box');
-            boxes.forEach(box => {
-                box.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    box.classList.add('drag-over');
-                });
-
-                box.addEventListener('dragleave', (e) => {
-                    e.preventDefault();
-                    if (!box.contains(e.relatedTarget)) {
-                        box.classList.remove('drag-over');
-                    }
-                });
-
+            document.querySelectorAll('.upload-box').forEach(box => {
+                box.addEventListener('dragover', (e) => { e.preventDefault(); box.classList.add('drag-over'); });
+                box.addEventListener('dragleave', (e) => { e.preventDefault(); if (!box.contains(e.relatedTarget)) box.classList.remove('drag-over'); });
                 box.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    box.classList.remove('drag-over');
-                    
+                    e.preventDefault(); box.classList.remove('drag-over');
                     const files = e.dataTransfer.files;
                     if (files.length > 0) {
                         const type = box.id.replace('Box', '');
                         const fileInput = document.getElementById(type + 'File');
-                        const dt = new DataTransfer();
-                        dt.items.add(files[0]);
-                        fileInput.files = dt.files;
+                        const dt = new DataTransfer(); dt.items.add(files[0]); fileInput.files = dt.files;
                         handleFileSelect(type);
                     }
                 });
@@ -1279,313 +464,183 @@
         }
 
         function triggerUpload(type) {
-            if (type === 'reference' && referenceData) {
-                return; 
-            }
-            if (type === 'actual' && actualData) {
-                return; 
-            }
+            if (type === 'reference' && referenceData) return; 
+            if (type === 'actual' && actualData) return; 
             document.getElementById(type + 'File').click();
         }
 
         function updateFlowIndicators(step) {
-            const step1 = document.getElementById('stepIndicator1');
-            const step2 = document.getElementById('stepIndicator2');
-            const step3 = document.getElementById('stepIndicator3');
-            const line1 = document.getElementById('flowConnector1');
-            const line2 = document.getElementById('flowConnector2');
-
-            step1.className = 'flow-step';
-            step2.className = 'flow-step';
-            step3.className = 'flow-step';
-            line1.className = 'flow-connector';
-            line2.className = 'flow-connector';
-
-            if (step === 1) {
-                step1.classList.add('active');
-            } else if (step === 2) {
-                step1.classList.add('completed');
-                line1.classList.add('active');
-                step2.classList.add('active');
-            } else if (step === 3) {
-                step1.classList.add('completed');
-                line1.classList.add('active');
-                step2.classList.add('completed');
-                line2.classList.add('active');
-                step3.classList.add('active');
-            }
+            const s1 = document.getElementById('stepIndicator1'), s2 = document.getElementById('stepIndicator2'), s3 = document.getElementById('stepIndicator3');
+            const l1 = document.getElementById('flowConnector1'), l2 = document.getElementById('flowConnector2');
+            [s1, s2, s3].forEach(s => s.className = 'flow-step');
+            [l1, l2].forEach(l => l.className = 'flow-connector');
+            if (step === 1) { s1.classList.add('active'); } 
+            else if (step === 2) { s1.classList.add('completed'); l1.classList.add('active'); s2.classList.add('active'); } 
+            else if (step === 3) { s1.classList.add('completed'); l1.classList.add('active'); s2.classList.add('completed'); l2.classList.add('active'); s3.classList.add('active'); }
         }
 
         function goToStep(step) {
             const currentContent = document.querySelector('.step-content.active');
             const targetContent = document.getElementById(`stepContent${step}`);
-
             if (currentContent) {
-                currentContent.style.opacity = '0';
-                currentContent.style.transform = 'translateY(-12px)';
-                
+                currentContent.style.opacity = '0'; currentContent.style.transform = 'translateY(-12px)';
                 setTimeout(() => {
                     currentContent.classList.remove('active');
-                    targetContent.classList.add('active');
-                    targetContent.offsetHeight; 
-                    targetContent.style.opacity = '1';
-                    targetContent.style.transform = 'translateY(0)';
-                    updateFlowIndicators(step);
-                    activeStep = step;
+                    targetContent.classList.add('active'); targetContent.offsetHeight; 
+                    targetContent.style.opacity = '1'; targetContent.style.transform = 'translateY(0)';
+                    updateFlowIndicators(step); activeStep = step;
                 }, 350);
             } else {
-                targetContent.classList.add('active');
-                targetContent.style.opacity = '1';
-                targetContent.style.transform = 'translateY(0)';
-                updateFlowIndicators(step);
-                activeStep = step;
+                targetContent.classList.add('active'); targetContent.style.opacity = '1'; targetContent.style.transform = 'translateY(0)';
+                updateFlowIndicators(step); activeStep = step;
             }
         }
 
         function handleFileSelect(type) {
             const fileInput = document.getElementById(type + 'File');
             const file = fileInput.files[0];
-
             if (!file) return;
-
             const filename = file.name.toLowerCase();
             if (!filename.endsWith('.xlsx') && !filename.endsWith('.xls') && !filename.endsWith('.csv')) {
-                showError('请上传 Excel 或 CSV 格式的文件');
-                fileInput.value = '';
-                return;
+                showError('请上传 Excel 或 CSV 格式的文件'); fileInput.value = ''; return;
             }
-
             document.getElementById(type + 'Filename').textContent = '📄 ' + file.name;
             document.getElementById(type + 'Box').classList.add('has-file');
-
-            const progressBar = document.getElementById('progressBar');
-            const progress = document.getElementById('progress');
-            progressBar.classList.add('active');
-            progress.style.width = '30%';
-
+            const progressBar = document.getElementById('progressBar'), progress = document.getElementById('progress');
+            progressBar.classList.add('active'); progress.style.width = '30%';
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     progress.style.width = '60%';
-                    
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
-
                     progress.style.width = '80%';
-
                     const result = analyzer.analyze(jsonData);
-
                     progress.style.width = '100%';
-
-                    if (result.data.length === 0) {
-                        showError('未找到有效数据，请检查文件格式');
-                        setTimeout(() => progressBar.classList.remove('active'), 500);
-                        return;
-                    }
-
+                    if (result.data.length === 0) { showError('未找到有效数据，请检查文件格式'); setTimeout(() => progressBar.classList.remove('active'), 500); return; }
                     const detectionEl = document.getElementById(type + 'Detection');
                     detectionEl.classList.remove('hidden');
-                    
-                    let detectionHTML = '';
-                    detectionHTML += `<div class="info-row"><span class="info-label">定位表头行</span><span class="info-val">第 ${result.headerRow + 1} 行</span></div>`;
+                    let detectionHTML = `<div class="info-row"><span class="info-label">定位表头行</span><span class="info-val">第 ${result.headerRow + 1} 行</span></div>`;
                     detectionHTML += `<div class="info-row"><span class="info-label">姓名列</span><span class="info-val">第 ${result.nameColumn + 1} 列 (${result.nameConfidence}%)</span></div>`;
-                    
-                    if (result.idColumn >= 0) {
-                        detectionHTML += `<div class="info-row"><span class="info-label">学号列</span><span class="info-val">第 ${result.idColumn + 1} 列</span></div>`;
-                    }
-                    
+                    if (result.idColumn >= 0) detectionHTML += `<div class="info-row"><span class="info-label">学号列</span><span class="info-val">第 ${result.idColumn + 1} 列</span></div>`;
                     detectionHTML += `<div class="info-row"><span class="info-label">匹配样本</span><span class="info-val">${result.data.length} 条数据</span></div>`;
-                    
                     detectionEl.innerHTML = detectionHTML;
-
-                    document.getElementById(type + 'Stats').textContent = 
-                        `✓ 识别到 ${result.data.length} 人` + (result.hasId ? '（含学号）' : '');
-
+                    document.getElementById(type + 'Stats').textContent = `✓ 识别到 ${result.data.length} 人` + (result.hasId ? '（含学号）' : '');
                     if (type === 'reference') {
                         referenceData = result;
                         const notice = document.getElementById('referenceTransitionNotice');
                         notice.classList.remove('hidden');
-                        setTimeout(() => {
-                            notice.classList.add('hidden');
-                            goToStep(2);
-                        }, 1200);
+                        setTimeout(() => { notice.classList.add('hidden'); goToStep(2); }, 1200);
                     } else {
                         actualData = result;
                         const notice = document.getElementById('actualTransitionNotice');
                         notice.classList.remove('hidden');
-                        setTimeout(() => {
-                            notice.classList.add('hidden');
-                            triggerAutomaticAnalysis();
-                        }, 1200);
+                        setTimeout(() => { notice.classList.add('hidden'); triggerAutomaticAnalysis(); }, 1200);
                     }
-
-                    checkCanCompare();
                     setTimeout(() => progressBar.classList.remove('active'), 500);
-
-                } catch (error) {
-                    showError('文件解析失败：' + error.message);
-                    console.error(error);
-                    setTimeout(() => progressBar.classList.remove('active'), 500);
-                }
+                } catch (error) { showError('文件解析失败：' + error.message); console.error(error); setTimeout(() => progressBar.classList.remove('active'), 500); }
             };
-
-            reader.onerror = () => {
-                showError('文件读取失败，请重试');
-                setTimeout(() => progressBar.classList.remove('active'), 500);
-            };
-
+            reader.onerror = () => { showError('文件读取失败，请重试'); setTimeout(() => progressBar.classList.remove('active'), 500); };
             reader.readAsArrayBuffer(file);
-        }
-
-        function checkCanCompare() {
-            document.getElementById('compareBtn').disabled = !(referenceData && actualData);
         }
 
         function triggerAutomaticAnalysis() {
             goToStep('Loader');
-            setTimeout(() => {
-                compareLists();
-                goToStep(3);
-            }, 1400);
+            setTimeout(() => { compareLists(); goToStep(3); }, 1400);
         }
 
-        // 🌟 经典匹配内核恢复：100% 恢复为您提供并得到您验证的经典比对算法
         function compareLists() {
-            if (!referenceData || !actualData) {
-                showError('请检查两个文件是否全部导入');
-                return;
-            }
-
+            if (!referenceData || !actualData) { showError('请检查两个文件是否全部导入'); return; }
             try {
-                const useIdMatch = referenceData.hasId && actualData.hasId;
                 let comparisonData = [];
-                let matchModeText = '';
+                const actualIdMap = new Map(), actualNameSet = new Set();
+                actualData.data.forEach(d => {
+                    if (d.id && d.id.length > 0) actualIdMap.set(d.id.trim().toLowerCase(), d);
+                    if (d.name) actualNameSet.add(d.name.trim().toLowerCase().replace(/\s+/g, ''));
+                });
 
-                if (useIdMatch) {
-                    matchModeText = '🎯 匹配方式：学号精准匹配（忽略姓名错别字）';
-                    
-                    const actualIdMap = new Map();
-                    actualData.data.forEach(d => {
-                        if (d.id && d.id.length > 0) {
-                            actualIdMap.set(d.id.trim().toLowerCase(), d);
-                        }
-                    });
+                const referenceIdMap = new Map(), referenceNameSet = new Set();
+                referenceData.data.forEach(d => {
+                    if (d.id && d.id.length > 0) referenceIdMap.set(d.id.trim().toLowerCase(), d);
+                    if (d.name) referenceNameSet.add(d.name.trim().toLowerCase().replace(/\s+/g, ''));
+                });
 
-                    referenceData.data.forEach(d => {
-                        const id = d.id ? d.id.trim().toLowerCase() : '';
-                        const isPresent = id && actualIdMap.has(id);
-                        comparisonData.push({
-                            name: d.name,
-                            id: d.id,
-                            present: isPresent
-                        });
-                    });
-                } else {
-                    matchModeText = '📝 匹配方式：姓名模糊匹配';
-                    
-                    const normalize = (name) => name.trim().toLowerCase().replace(/\s+/g, '');
-                    const actualNameSet = new Set(actualData.data.map(d => normalize(d.name)));
+                const hasIdInRef = referenceData.data.some(d => d.id && d.id.length > 0);
+                const hasIdInActual = actualData.data.some(d => d.id && d.id.length > 0);
+                const useIdMatch = hasIdInRef && hasIdInActual;
+                document.getElementById('matchMode').textContent = useIdMatch ? '🎯 匹配方式：学号精准匹配 + 姓名双重兜底' : '📝 匹配方式：姓名模糊匹配';
 
-                    referenceData.data.forEach(d => {
-                        const isPresent = actualNameSet.has(normalize(d.name));
-                        comparisonData.push({
-                            name: d.name,
-                            id: d.id,
-                            present: isPresent
-                        });
-                    });
-                }
+                referenceData.data.forEach(d => {
+                    const id = d.id ? d.id.trim().toLowerCase() : '';
+                    const normalizedName = d.name ? d.name.trim().toLowerCase().replace(/\s+/g, '') : '';
+                    let isPresent = false, matchType = '';
+                    if (useIdMatch && id && actualIdMap.has(id)) { isPresent = true; matchType = 'id'; } 
+                    else if (normalizedName && actualNameSet.has(normalizedName)) { isPresent = true; matchType = 'name'; }
+                    comparisonData.push({ name: d.name, id: d.id, present: isPresent, matchType: matchType });
+                });
+
+                const extraPeople = [];
+                actualData.data.forEach(d => {
+                    const id = d.id ? d.id.trim().toLowerCase() : '';
+                    const normalizedName = d.name ? d.name.trim().toLowerCase().replace(/\s+/g, '') : '';
+                    let inReference = false;
+                    if (useIdMatch && id && referenceIdMap.has(id)) inReference = true;
+                    else if (normalizedName && referenceNameSet.has(normalizedName)) inReference = true;
+                    if (!inReference) extraPeople.push(d);
+                });
 
                 const missing = comparisonData.filter(d => !d.present);
-                const total = comparisonData.length;
-                const present = total - missing.length;
-
+                const total = comparisonData.length, present = total - missing.length;
                 document.getElementById('totalCount').textContent = total;
                 document.getElementById('presentCount').textContent = present;
                 document.getElementById('missingCount').textContent = missing.length;
-                document.getElementById('matchMode').textContent = matchModeText;
 
                 const resultSection = document.getElementById('resultSection');
-
                 if (missing.length === 0) {
                     resultSection.classList.add('all-present');
-                    resultSection.innerHTML = `
-                        <div class="all-present-message">
-                            🎉 恭喜！参考人员全部已在实际名单中找到。
-                        </div>
-                    `;
+                    resultSection.innerHTML = `<div class="all-present-message">🎉 恭喜！录取名单上的 ${total} 人全部已签到，无缺勤！</div>`;
                 } else {
                     resultSection.classList.remove('all-present');
-                    resultSection.innerHTML = `
-                        <div class="result-header">
-                            <span class="icon">⚠️</span>
-                            <span>未到人员名单 (${missing.length}人)</span>
-                        </div>
-                        <div class="missing-list" id="missingList"></div>
-                    `;
-
+                    resultSection.innerHTML = `<div class="result-header"><span class="icon">⚠️</span><span>未到人员名单 (${missing.length}人)</span></div><div class="missing-list" id="missingList"></div>`;
                     const listEl = document.getElementById('missingList');
                     missing.forEach((entry, idx) => {
-                        const div = document.createElement('div');
-                        div.className = 'missing-person';
-                        div.textContent = entry.name;
-                        div.title = entry.id ? `学号: ${entry.id}` : '';
-                        div.style.animationDelay = `${idx * 0.02}s`;
-                        listEl.appendChild(div);
+                        const div = document.createElement('div'); div.className = 'missing-person'; div.textContent = entry.name;
+                        div.title = entry.id ? `学号: ${entry.id}` : ''; div.style.animationDelay = `${idx * 0.02}s`; listEl.appendChild(div);
                     });
                 }
 
-                const tableBody = document.getElementById('comparisonTableBody');
-                tableBody.innerHTML = '';
+                const extraSection = document.getElementById('extraSection'), extraList = document.getElementById('extraList');
+                if (extraPeople.length > 0) {
+                    extraSection.style.display = 'block'; extraList.innerHTML = '';
+                    extraPeople.forEach((entry, idx) => {
+                        const div = document.createElement('div'); div.className = 'missing-person'; div.textContent = entry.name;
+                        div.title = entry.id ? `学号: ${entry.id}` : ''; div.style.animationDelay = `${idx * 0.02}s`; extraList.appendChild(div);
+                    });
+                } else { extraSection.style.display = 'none'; }
 
+                const tableBody = document.getElementById('comparisonTableBody'); tableBody.innerHTML = '';
                 comparisonData.forEach((entry, idx) => {
-                    const tr = document.createElement('tr');
-                    if (!entry.present) {
-                        tr.className = 'missing';
-                    }
-
-                    tr.innerHTML = `
-                        <td class="seq">${idx + 1}</td>
-                        <td class="name-cell">${entry.name}</td>
-                        <td class="id-cell">${entry.id || '-'}</td>
-                        <td>
-                            <span class="status-badge ${entry.present ? 'present' : 'missing'}">
-                                ${entry.present ? '已报名' : '未报名'}
-                            </span>
-                        </td>
-                    `;
-
+                    const tr = document.createElement('tr'); if (!entry.present) tr.className = 'missing';
+                    let statusText = '', statusClass = '';
+                    if (entry.present) {
+                        if (entry.matchType === 'name') { statusText = '已签到 (学号异常,姓名匹配)'; statusClass = 'present'; } 
+                        else { statusText = '已签到'; statusClass = 'present'; }
+                    } else { statusText = '未签到'; statusClass = 'missing'; }
+                    tr.innerHTML = `<td class="seq">${idx + 1}</td><td class="name-cell">${entry.name}</td><td class="id-cell">${entry.id || '-'}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td>`;
                     tableBody.appendChild(tr);
                 });
-
-            } catch (error) {
-                showError('对账比对失败：' + error.message);
-                console.error(error);
-            }
+            } catch (error) { showError('对账比对失败：' + error.message); console.error(error); }
         }
 
         function resetWorkflow() {
-            referenceData = null;
-            actualData = null;
-            
-            document.getElementById('referenceFile').value = '';
-            document.getElementById('actualFile').value = '';
-            
-            document.getElementById('referenceFilename').textContent = '';
-            document.getElementById('actualFilename').textContent = '';
-            
-            document.getElementById('referenceStats').textContent = '';
-            document.getElementById('actualStats').textContent = '';
-            
-            document.getElementById('referenceBox').classList.remove('has-file');
-            document.getElementById('actualBox').classList.remove('has-file');
-            
-            document.getElementById('referenceDetection').classList.add('hidden');
-            document.getElementById('actualDetection').classList.add('hidden');
-            
-            checkCanCompare();
+            referenceData = null; actualData = null;
+            document.getElementById('referenceFile').value = ''; document.getElementById('actualFile').value = '';
+            document.getElementById('referenceFilename').textContent = ''; document.getElementById('actualFilename').textContent = '';
+            document.getElementById('referenceStats').textContent = ''; document.getElementById('actualStats').textContent = '';
+            document.getElementById('referenceBox').classList.remove('has-file'); document.getElementById('actualBox').classList.remove('has-file');
+            document.getElementById('referenceDetection').classList.add('hidden'); document.getElementById('actualDetection').classList.add('hidden');
             goToStep(1);
         }
 
@@ -1596,10 +651,7 @@
             setTimeout(() => toast.classList.remove('show'), 4000);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            setupDragAndDrop();
-            goToStep(1);
-        });
+        document.addEventListener('DOMContentLoaded', () => { setupDragAndDrop(); goToStep(1); });
     </script>
 </body>
 </html>
