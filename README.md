@@ -8,6 +8,8 @@
 
 **🔒 纯前端 · 零依赖 · 隐私安全 · 开箱即用**
 
+<img src="assets/readme-illustrations/01-local-list-comparison.png" alt="WhoIsMissing 本地名单比对插图" width="760">
+
 [功能特点](#功能特点) • [快速开始](#快速开始) • [使用指南](#使用指南) • [部署方式](#部署方式)
 
 </div>
